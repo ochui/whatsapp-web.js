@@ -92,12 +92,15 @@ class Client extends EventEmitter {
       /**
    * A helper to wrap page.evaluate so that it checks that pupPage is initialized.
    */
-    async safeEvaluate(fn, ...args) {
-        if (!this.pupPage) {
-        throw new Error('Puppeteer page is not initialized');
+      async safeEvaluate(fn, ...args) {
+        try {
+          return await this.pupPage?.evaluate(fn, ...args);
+        } catch (error) {
+          this.emit('error', error);
+          console.error('safeEvaluate error:', error);
+          return undefined; // Fail silently
         }
-        return await this.pupPage.evaluate(fn, ...args);
-    }
+      }
 
     /**
      * Injection logic
